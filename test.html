@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Estoque</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+            transition: background-color 1s ease-in-out, color 1s ease-in-out;
+        }
+
+        body {
+            background-color: #1d2e66;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            animation: changeTheme 3s forwards;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            animation: fadeIn 1.5s forwards;
+        }
+
+        .logo {
+            max-width: 150px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            opacity: 0;
+            animation: fadeIn 1.5s 0.5s forwards;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            opacity: 0;
+            animation: fadeIn 1.5s 0.5s forwards;
+            color: white !important;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: #2c3e8b;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInMove 1s 1s forwards;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-scan {
+            background-color: #3498db;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-scan:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-buscar {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .btn-buscar:hover {
+            background-color: #e67e22;
+        }
+
+        .btn-entrada {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .btn-entrada:hover {
+            background-color: #2ecc71;
+        }
+
+        .btn-saida {
+            background-color: #c0392b;
+            color: white;
+        }
+
+        .btn-saida:hover {
+            background-color: #e74c3c;
+        }
+
+        .scan-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        #produtoInfo {
+            margin-top: 15px;
+            font-size: 18px;
+        }
+
+        footer {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 14px;
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 2s 1.5s forwards;
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInMove {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes changeTheme {
+            0% { background-color: #1d2e66; color: white; }
+            100% { background-color: white; color: black; }
+        }
+
+        @media (max-width: 450px) {
+            .container {
+                width: 90%;
+            }
+
+            input, button {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo da AISIN -->
+    <div class="logo-container">
+        <img class="logo" src="https://www.aisin.com/jp/assets/img/common/logo.svg" alt="AISIN Logo">
+    </div>
+    
+    <h1>Controle de Estoque</h1>
+    
+    <div class="container">
+        <h2>Buscar Produto</h2>
+
+        <button class="btn-scan" onclick="scanQRCode()">
+            <img class="scan-icon" src="https://cdn-icons-png.flaticon.com/512/1160/1160358.png" alt="Scan">
+            Scanear QR Code
+        </button>
+
+        <input type="text" id="produtoId" placeholder="ID do Produto">
+        <button class="btn-buscar" onclick="buscarProduto()">Buscar</button>
+        <div id="produtoInfo"></div>
+
+        <h2>Movimentação</h2>
+        <input type="number" id="quantidade" placeholder="Quantidade">
+        <input type="text" id="responsavel" placeholder="Responsável">
+        <button class="btn-entrada" onclick="movimentarEstoque('entrada')">Entrada</button>
+        <button class="btn-saida" onclick="movimentarEstoque('saida')">Saída</button>
+    </div>
+
+    <footer>
+        © 2024 AISIN. Todos os direitos reservados.
+    </footer>
+
+    <script>
+        async function buscarProduto() {
+            const id = document.getElementById("produtoId").value;
+            if (!id) {
+                alert("Por favor, insira o ID do produto.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/produto/${id}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById("produtoInfo").innerHTML = `
+                        <p><strong>Nome:</strong> ${data.nome}</p>
+                        <p><strong>Quantidade Atual:</strong> ${data.quantidade}</p>
+                    `;
+                } else {
+                    document.getElementById("produtoInfo").innerHTML = `<p style="color: red;">${data.error}</p>`;
+                }
+            } catch (error) {
+                document.getElementById("produtoInfo").innerHTML = `<p style="color: red;">Erro ao buscar o produto.</p>`;
+            }
+        }
+
+        async function movimentarEstoque(tipo) {
+            const id = document.getElementById("produtoId").value;
+            const quantidade = document.getElementById("quantidade").value;
+            const responsavel = document.getElementById("responsavel").value;
+
+            if (!id || !quantidade || !responsavel) {
+                alert("Preencha todos os campos antes de continuar.");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:3000/movimentar", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id, quantidade, tipo, responsavel })
+                });
+
+                const data = await response.json();
+                alert(data.message || data.error);
+            } catch (error) {
+                alert("Erro ao movimentar o estoque.");
+            }
+        }
+
+        function scanQRCode() {
+            alert("O recurso de escaneamento de QR Code será implementado futuramente.");
+        }
+    </script>
+</body>
+</html>
