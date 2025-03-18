@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Produtos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+            transition: background-color 1s ease-in-out, color 1s ease-in-out;
+        }
+
+        body {
+            background-color: #1d2e66;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            animation: changeTheme 3s forwards;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            animation: fadeIn 1.5s forwards;
+        }
+
+        .logo {
+            max-width: 150px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            opacity: 0;
+            animation: fadeIn 1.5s 0.5s forwards;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: #2c3e8b;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInMove 1s 1s forwards;
+        }
+
+        select, input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-cadastrar {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .btn-cadastrar:hover {
+            background-color: #2ecc71;
+        }
+
+        .tipo-btn {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .tipo-btn button {
+            width: 48%;
+        }
+
+        .btn-material {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-material:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-ferramenta {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .btn-ferramenta:hover {
+            background-color: #e67e22;
+        }
+
+        footer {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 14px;
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 2s 1.5s forwards;
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInMove {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes changeTheme {
+            0% { background-color: #1d2e66; color: white; }
+            100% { background-color: white; color: black; }
+        }
+
+        @media (max-width: 450px) {
+            .container {
+                width: 90%;
+            }
+
+            input, select, button {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo da AISIN -->
+    <div class="logo-container">
+        <img class="logo" src="https://www.aisin.com/jp/assets/img/common/logo.svg" alt="AISIN Logo">
+    </div>
+    
+    <h1>Cadastro de Produtos/Ferramentas</h1>
+    
+    <div class="container">
+        <h2>Defina o Tipo</h2>
+        <div class="tipo-btn">
+            <button class="btn-material" onclick="selecionarTipo('Material')">Material</button>
+            <button class="btn-ferramenta" onclick="selecionarTipo('Ferramenta')">Ferramenta</button>
+        </div>
+
+        <h2 style="margin-top: 15px;">O ID do seu produto será:</h2>
+        <p id="idProduto" style="font-size: 18px; font-weight: bold;">(Gerado pela planilha)</p>
+
+        <h2>Informações do Produto</h2>
+        <input type="number" id="estoqueAtual" placeholder="Estoque Atual">
+        <input type="number" id="estoqueMinimo" placeholder="Estoque Mínimo">
+        <input type="number" id="estoqueIdeal" placeholder="Estoque Ideal">
+        <input type="text" id="codigoDatasul" placeholder="Código do Datasul">
+        <input type="date" id="dataAquisicao" placeholder="Data da Aquisição">
+        <input type="text" id="numeroSerie" placeholder="Número de Série">
+        <input type="text" id="marca" placeholder="Marca">
+        <input type="text" id="fornecedor" placeholder="Fornecedor">
+        <input type="number" id="valor" placeholder="Valor (R$)">
+
+        <button class="btn-cadastrar" onclick="cadastrarProduto()">Cadastrar</button>
+    </div>
+
+    <footer>
+        © 2024 AISIN. Todos os direitos reservados.
+    </footer>
+
+    <script>
+        let tipoProduto = "";
+
+        function selecionarTipo(tipo) {
+            tipoProduto = tipo;
+            alert(`Você selecionou: ${tipo}`);
+        }
+
+        async function cadastrarProduto() {
+            if (!tipoProduto) {
+                alert("Escolha se é um Material ou Ferramenta antes de continuar.");
+                return;
+            }
+
+            const dadosProduto = {
+                tipo: tipoProduto,
+                estoqueAtual: document.getElementById("estoqueAtual").value,
+                estoqueMinimo: document.getElementById("estoqueMinimo").value,
+                estoqueIdeal: document.getElementById("estoqueIdeal").value,
+                codigoDatasul: document.getElementById("codigoDatasul").value,
+                dataAquisicao: document.getElementById("dataAquisicao").value,
+                numeroSerie: document.getElementById("numeroSerie").value,
+                marca: document.getElementById("marca").value,
+                fornecedor: document.getElementById("fornecedor").value,
+                valor: document.getElementById("valor").value
+            };
+
+            console.log("Produto Cadastrado:", dadosProduto);
+            alert("Produto cadastrado com sucesso!");
+
+            // Aqui você pode enviar os dados para um backend (API)
+        }
+    </script>
+</body>
+</html>
